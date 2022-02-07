@@ -38,4 +38,22 @@ class RefactoredPlayer
         return $this->isInPenaltyBox;
     }
 
+    public function moveInPenaltyBox()
+    {
+        $this->isInPenaltyBox = true;
+    }
+
+    public function adjustBoardPlace(int $roll)
+    {
+        $this->boardPlace += $roll;
+        if ($this->boardPlace >= count(RefactoredGame::BOARD_PLACES)) {
+            $this->boardPlace -= count(RefactoredGame::BOARD_PLACES);
+        }
+    }
+
+    public function addOneCoin()
+    {
+        $this->coins++;
+    }
 }
+
