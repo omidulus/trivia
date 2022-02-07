@@ -74,55 +74,48 @@ class GoldenMasterGameTest extends TestCase
 
     private function playLegacyGame(array $players, array $rolledDices, array $answers): bool
     {
-        $legacyGame = $this->createLegacyGame($players);
-        return $this->playGame($legacyGame, $rolledDices, $answers);
-    }
-
-    private function playRefactoredGame(array $players, array $rolledDices, array $answers): bool
-    {
-        $refactoredGame = $this->createRefactoredGame($players);
-        return $this->playGame($refactoredGame, $rolledDices, $answers);
-    }
-
-    private function createLegacyGame(array $players): Game
-    {
-        $game = new Game();
+        $legacyGame = new Game();
 
         foreach ($players as $player) {
-            $game->add($player);
+            $legacyGame->add($player);
         }
 
-        return $game;
-    }
-
-    private function createRefactoredGame(array $players): RefactoredGame
-    {
-        $game = new RefactoredGame();
-
-        foreach ($players as $player) {
-            $game->addPlayer($player);
-        }
-
-        return $game;
-    }
-
-    // CANNOT USE A TYPE HINT (INTERFACE) YET AS THAT WOULD BE REFACTORING BEFORE WRITING THE TESTS
-    /** @var Game | RefactoredGame $game */
-    private function playGame($game, array $rolledDices, array $answers): bool
-    {
         $i = 0;
-
         do {
-            $game->roll($rolledDices[$i]);
+            $legacyGame->roll($rolledDices[$i]);
 
             if ($answers[$i] === false) {
-                $notAWinner = $game->wrongAnswer();
+                $notAWinner = $legacyGame->wrongAnswer();
             } else {
-                $notAWinner = $game->wasCorrectlyAnswered();
+                $notAWinner = $legacyGame->wasCorrectlyAnswered();
             }
             $i++;
         } while ($notAWinner && $i < count($rolledDices));
 
         return $notAWinner;
+    }
+
+    private function playRefactoredGame(array $players, array $rolledDices, array $answers): bool
+    {
+        $refactoredGame = new RefactoredGame();
+
+        foreach ($players as $player) {
+            $refactoredGame->addPlayer($player);
+        }
+
+        $i = 0;
+        do {
+            $refactoredGame->roll($rolledDices[$i]);
+
+            if ($answers[$i] === false) {
+                $notAWinner = $refactoredGame->wrongAnswer();
+            } else {
+                $notAWinner = $refactoredGame->wasCorrectlyAnswered();
+            }
+            $i++;
+        } while ($notAWinner && $i < count($rolledDices));
+
+        return $notAWinner;
+
     }
 }
