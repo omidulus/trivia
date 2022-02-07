@@ -1,6 +1,8 @@
 <?php
 namespace Refactored;
 
+require_once __DIR__ . '/RefactoredPlayer.php';
+
 class RefactoredGame
 {
     const CATEGORY_POP = 'Pop';
@@ -38,11 +40,7 @@ class RefactoredGame
 
     function __construct()
     {
-        //TODO pare ca jocul se initializeaza fara primul jucator desi sunt atribuite niste proprietati pentru el
         $this->players = [];
-        $this->playersPlaces = [];
-        $this->purses = [];
-        $this->inPenaltyBox = [];
 
         $this->createNewQuestionDecks();
     }
@@ -84,23 +82,20 @@ class RefactoredGame
 
     public function addPlayer($playerName): void
     {
-        $this->players[] = $playerName;
-        $this->playersPlaces[$this->howManyPlayers() - 1] = 0;
-        $this->purses[$this->howManyPlayers() - 1] = 0;
-        $this->inPenaltyBox[$this->howManyPlayers() - 1] = false;
+        $this->players[] = new RefactoredPlayer($playerName);
 
         echoln($playerName . " was added");
         echoln("They are player number " . count($this->players));
     }
 
-    private function howManyPlayers(): int
+    private function currentPlayer(): RefactoredPlayer
     {
-        return count($this->players);
+        return $this->players[$this->currentPlayer];
     }
 
     public function roll($roll)
     {
-        echoln($this->players[$this->currentPlayer] . " is the current player");
+        echoln($this->currentPlayer()->name() . " is the current player");
         echoln("They have rolled a " . $roll);
 
         if (!$this->inPenaltyBox[$this->currentPlayer]) {
@@ -111,15 +106,13 @@ class RefactoredGame
             if ($oddNumberWasRolled) {
                 $this->isGettingOutOfPenaltyBox = true;
 
-                echoln($this->players[$this->currentPlayer] . " is getting out of the penalty box");
+                echoln($this->currentPlayer()->name() . " is getting out of the penalty box");
                 $this->movePlayerOnBoardAndAskNextQuestion($roll);
             } else {
-                echoln($this->players[$this->currentPlayer] . " is not getting out of the penalty box");
+                echoln($this->currentPlayer()->name() . " is not getting out of the penalty box");
                 $this->isGettingOutOfPenaltyBox = false;
             }
-
         }
-
     }
 
     private function askQuestion()
@@ -166,7 +159,7 @@ class RefactoredGame
     public function wrongAnswer(): bool
     {
         echoln("Question was incorrectly answered");
-        echoln($this->players[$this->currentPlayer] . " was sent to the penalty box");
+        echoln($this->currentPlayer()->name() . " was sent to the penalty box");
         // TODO verifica daca nu cumva e un bug faptul ca jucatorii nu par sa iasa din cutia pedepsei
         $this->inPenaltyBox[$this->currentPlayer] = true;
 
@@ -194,7 +187,7 @@ class RefactoredGame
         echoln("Answer was correct!!!!");
         $this->purses[$this->currentPlayer]++;
         echoln(
-            $this->players[$this->currentPlayer]
+            $this->currentPlayer()->name()
             . " now has "
             . $this->purses[$this->currentPlayer]
             . " Gold Coins."
@@ -213,7 +206,7 @@ class RefactoredGame
         }
 
         echoln(
-            sprintf("%s's new location is %d", $this->players[$this->currentPlayer], $this->playersPlaces[$this->currentPlayer])
+            sprintf("%s's new location is %d", $this->currentPlayer()->name(), $this->playersPlaces[$this->currentPlayer])
         );
         echoln("The category is " . $this->currentPlayerCategory());
         $this->askQuestion();
