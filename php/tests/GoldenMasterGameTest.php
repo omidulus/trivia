@@ -4,6 +4,7 @@ include __DIR__ . '/../RefactoredGame.php';
 
 
 use PHPUnit\Framework\TestCase;
+use Refactored\RefactoredGame;
 
 class GoldenMasterGameTest extends TestCase
 {
@@ -99,13 +100,14 @@ class GoldenMasterGameTest extends TestCase
         $game = new RefactoredGame();
 
         foreach ($players as $player) {
-            $game->add($player);
+            $game->addPlayer($player);
         }
 
         return $game;
     }
 
     // CANNOT USE A TYPE HINT (INTERFACE) YET AS THAT WOULD BE REFACTORING BEFORE WRITING THE TESTS
+    /** @var Game | RefactoredGame $game */
     private function playGame($game, array $rolledDices, array $answers): bool
     {
         $i = 0;
