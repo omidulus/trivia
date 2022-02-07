@@ -1,6 +1,8 @@
 <?php
 namespace Refactored;
 
+use function echoln;
+
 require_once __DIR__ . '/RefactoredPlayer.php';
 
 class RefactoredGame
@@ -32,7 +34,7 @@ class RefactoredGame
     private $sportsQuestions;
     private $rockQuestions;
 
-    private $currentPlayerPlace = 0;
+    private $currentPlayer = 0;
     private $isGettingOutOfPenaltyBox;
 
     function __construct()
@@ -87,7 +89,7 @@ class RefactoredGame
 
     private function currentPlayer(): RefactoredPlayer
     {
-        return $this->players[$this->currentPlayerPlace];
+        return $this->players[$this->currentPlayer];
     }
 
     public function roll($roll)
@@ -111,7 +113,7 @@ class RefactoredGame
         }
     }
 
-    private function askQuestion()
+    private function askNextQuestion()
     {
         if ($this->currentPlayerCategory() == self::CATEGORY_POP) {
             echoln(array_shift($this->popQuestions));
@@ -132,24 +134,29 @@ class RefactoredGame
         return self::BOARD_PLACES[$this->currentPlayer()->boardPlace()];
     }
 
-    public function wasCorrectlyAnswered(): bool
+    public function wasCorrectlyAnswered(): bool// true = notAWinner
     {
-        if ($this->currentPlayer()->isInPenaltyBox()) {
-            if ($this->isGettingOutOfPenaltyBox) {
-                $playerWonTheGame = $this->afterCorrectAnswer();
-
-                return $playerWonTheGame;
-            } else {
-                $this->nextPlayer();
-                return true;
-            }
-
-
-        } else {
-            $playerWonTheGame = $this->afterCorrectAnswer();
-
-            return $playerWonTheGame;
+        if ($this->currentPlayer()->isInPenaltyBox() && !$this->isGettingOutOfPenaltyBox) {
+            $this->nextPlayer();
+            return true;
         }
+
+        echoln("Answer was correct!!!!");
+        $this->currentPlayer()->addOneCoin();
+        echoln(
+            $this->currentPlayer()->name()
+            . " now has "
+            . $this->currentPlayer()->coins()
+            . " Gold Coins."
+        );
+
+        if ($this->didCurrentPlayerWin()) {
+            return false;
+        }
+
+        $this->nextPlayer();
+
+        return true;
     }
 
     public function wrongAnswer(): bool
@@ -163,44 +170,27 @@ class RefactoredGame
         return true;
     }
 
-    private function didPlayerWin(): bool
+    private function didCurrentPlayerWin(): bool
     {
-        //TODO ce e cu 6 asta ?
-        return $this->currentPlayer()->coins() != 6;
+        return $this->currentPlayer()->coins() >= 6;
     }
 
     private function nextPlayer(): void
     {
-        $this->currentPlayerPlace++;
-        if ($this->currentPlayerPlace == count($this->players)) {
-            $this->currentPlayerPlace = 0;
+        $this->currentPlayer++;
+        if ($this->currentPlayer == count($this->players)) {
+            $this->currentPlayer = 0;
         }
-    }
-
-    private function afterCorrectAnswer(): bool
-    {
-        echoln("Answer was correct!!!!");
-        $this->currentPlayer()->addOneCoin();
-        echoln(
-            $this->currentPlayer()->name()
-            . " now has "
-            . $this->currentPlayer()->coins()
-            . " Gold Coins."
-        );
-
-        $winner = $this->didPlayerWin();
-        $this->nextPlayer();
-        return $winner;
     }
 
     private function movePlayerOnBoardAndAskNextQuestion(int $roll): void
     {
-        $this->currentPlayer()->adjustBoardPlace($roll);
+        $this->currentPlayer()->moveOnBoard($roll);
 
         echoln(
             sprintf("%s's new location is %d", $this->currentPlayer()->name(), $this->currentPlayer()->boardPlace())
         );
         echoln("The category is " . $this->currentPlayerCategory());
-        $this->askQuestion();
+        $this->askNextQuestion();
     }
 }

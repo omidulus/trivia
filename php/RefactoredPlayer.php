@@ -43,7 +43,7 @@ class RefactoredPlayer
         $this->isInPenaltyBox = true;
     }
 
-    public function adjustBoardPlace(int $roll)
+    public function moveOnBoard(int $roll)
     {
         $this->boardPlace += $roll;
         if ($this->boardPlace >= count(RefactoredGame::BOARD_PLACES)) {
