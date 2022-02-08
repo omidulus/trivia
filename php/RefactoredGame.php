@@ -35,7 +35,6 @@ class RefactoredGame
     private $rockQuestions;
 
     private $currentPlayer = -1;
-    private $isGettingOutOfPenaltyBox;
 
     function __construct(array $players)
     {
@@ -89,7 +88,7 @@ class RefactoredGame
         echoln("They are player number " . count($this->players));
     }
 
-    private function nextPlayer(): void
+    private function activateNextPlayer(): void
     {
         if ($this->currentPlayer < 0) {
             $this->currentPlayer = 0;
@@ -106,9 +105,9 @@ class RefactoredGame
         return $this->players[$this->currentPlayer];
     }
 
-    public function nextPlayerRoll($roll)
+    public function nextPlayerRoll(int $roll, bool $willAnswerCorrectly)
     {
-        $this->nextPlayer();
+        $this->activateNextPlayer();
 
         echoln($this->currentPlayer()->name() . " is the current player");
         echoln("They have rolled a " . $roll);
@@ -117,15 +116,34 @@ class RefactoredGame
             $this->movePlayerOnBoardAndAskNextQuestion($roll);
         } else {
             $oddNumberWasRolled = $roll % 2 != 0;
-            if ($oddNumberWasRolled) {
-                $this->isGettingOutOfPenaltyBox = true;
-
-                echoln($this->currentPlayer()->name() . " is getting out of the penalty box");
-                $this->movePlayerOnBoardAndAskNextQuestion($roll);
-            } else {
+            if (!$oddNumberWasRolled) {
                 echoln($this->currentPlayer()->name() . " is not getting out of the penalty box");
-                $this->isGettingOutOfPenaltyBox = false;
+
+                if (!$willAnswerCorrectly) {
+                    echoln("Question was incorrectly answered");
+                    echoln($this->currentPlayer()->name() . " was sent to the penalty box");
+                }
+
+                return;
             }
+
+            echoln($this->currentPlayer()->name() . " is getting out of the penalty box");
+            $this->movePlayerOnBoardAndAskNextQuestion($roll);
+        }
+
+        if ($willAnswerCorrectly) {
+            echoln("Answer was correct!!!!");
+            $this->currentPlayer()->addOneCoin();
+            echoln(
+                $this->currentPlayer()->name()
+                . " now has "
+                . $this->currentPlayer()->coins()
+                . " Gold Coins."
+            );
+        } else {
+            echoln("Question was incorrectly answered");
+            echoln($this->currentPlayer()->name() . " was sent to the penalty box");
+            $this->currentPlayer()->moveInPenaltyBox();
         }
     }
 
@@ -148,29 +166,6 @@ class RefactoredGame
     private function currentPlayerCategory(): string
     {
         return self::BOARD_PLACES[$this->currentPlayer()->boardPlace()];
-    }
-
-    public function answeredCorrectly()
-    {
-        if ($this->currentPlayer()->isInPenaltyBox() && !$this->isGettingOutOfPenaltyBox) {
-            return;
-        }
-
-        echoln("Answer was correct!!!!");
-        $this->currentPlayer()->addOneCoin();
-        echoln(
-            $this->currentPlayer()->name()
-            . " now has "
-            . $this->currentPlayer()->coins()
-            . " Gold Coins."
-        );
-    }
-
-    public function answeredIncorrectly()
-    {
-        echoln("Question was incorrectly answered");
-        echoln($this->currentPlayer()->name() . " was sent to the penalty box");
-        $this->currentPlayer()->moveInPenaltyBox();
     }
 
     public function hasEnded(): bool

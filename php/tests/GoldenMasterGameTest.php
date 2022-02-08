@@ -101,12 +101,11 @@ class GoldenMasterGameTest extends TestCase
 
         $i = 0;
         do {
-            $refactoredGame->nextPlayerRoll($rolledDices[$i]);
 
             if ($answers[$i] === false) {
-                $refactoredGame->answeredIncorrectly();
+                $refactoredGame->nextPlayerRoll($rolledDices[$i], false);
             } else {
-                $refactoredGame->answeredCorrectly();
+                $refactoredGame->nextPlayerRoll($rolledDices[$i], true);
             }
             $i++;
             $simulationOver = $i >= count($rolledDices);
