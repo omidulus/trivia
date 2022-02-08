@@ -66,6 +66,7 @@ class Game {
 
 		if ($this->inPenaltyBox[$this->currentPlayer]) {
 			if ($roll % 2 != 0) {
+                $this->inPenaltyBox[$this->currentPlayer] = false;
 				$this->isGettingOutOfPenaltyBox = true;
 
 				echoln($this->players[$this->currentPlayer] . " is getting out of the penalty box");
@@ -162,11 +163,13 @@ class Game {
 	}
 
 	function wrongAnswer(){
-		echoln("Question was incorrectly answered");
-		echoln($this->players[$this->currentPlayer] . " was sent to the penalty box");
-	$this->inPenaltyBox[$this->currentPlayer] = true;
+        if (!$this->inPenaltyBox[$this->currentPlayer]) {
+            echoln("Question was incorrectly answered");
+            echoln($this->players[$this->currentPlayer] . " was sent to the penalty box");
+        }
+        $this->inPenaltyBox[$this->currentPlayer] = true;
 
-		$this->currentPlayer++;
+        $this->currentPlayer++;
 		if ($this->currentPlayer == count($this->players)) $this->currentPlayer = 0;
 		return true;
 	}

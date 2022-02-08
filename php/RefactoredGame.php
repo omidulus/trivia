@@ -119,15 +119,11 @@ class RefactoredGame
             if (!$oddNumberWasRolled) {
                 echoln($this->currentPlayer()->name() . " is not getting out of the penalty box");
 
-                if (!$willAnswerCorrectly) {
-                    echoln("Question was incorrectly answered");
-                    echoln($this->currentPlayer()->name() . " was sent to the penalty box");
-                }
-
                 return;
             }
 
             echoln($this->currentPlayer()->name() . " is getting out of the penalty box");
+            $this->currentPlayer()->exitPenaltyBox();
             $this->movePlayerOnBoardAndAskNextQuestion($roll);
         }
 

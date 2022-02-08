@@ -43,6 +43,11 @@ class RefactoredPlayer
         $this->isInPenaltyBox = true;
     }
 
+    public function exitPenaltyBox()
+    {
+        $this->isInPenaltyBox = false;
+    }
+
     public function moveOnBoard(int $roll)
     {
         $this->boardPlace += $roll;
