@@ -39,7 +39,7 @@ class GoldenMasterGameTest extends TestCase
         $playersPool = self::PLAYERS_POOL;
 
         shuffle($playersPool);
-        return array_slice($playersPool, 0, rand(1, count($playersPool) - 1));
+        return array_slice($playersPool, 0, rand(2, count($playersPool) - 1));
     }
 
     private static function simulatePlayersAnswers(int $playedTurns): array
