@@ -8,7 +8,7 @@ use Refactored\RefactoredGame;
 
 class GoldenMasterGameTest extends TestCase
 {
-    const SIMULATED_GAMES = 3000;
+    const SIMULATED_GAMES = 1000;
     const PLAYERS_POOL = ["Chet", "Pat", "Sue", "Victor", "Tomy", "Tarzan", "Unchiu Bobitza"];
 
     /** @test */
@@ -105,17 +105,18 @@ class GoldenMasterGameTest extends TestCase
 
         $i = 0;
         do {
-            $refactoredGame->roll($rolledDices[$i]);
+            $refactoredGame->nextPlayerRoll($rolledDices[$i]);
 
             if ($answers[$i] === false) {
-                $notAWinner = $refactoredGame->wrongAnswer();
+                $refactoredGame->answeredIncorrectly();
             } else {
-                $notAWinner = $refactoredGame->wasCorrectlyAnswered();
+                $refactoredGame->answeredCorrectly();
             }
             $i++;
-        } while ($notAWinner && $i < count($rolledDices));
+            $simulationOver = $i >= count($rolledDices);
+        } while (!$refactoredGame->hasEnded() && !$simulationOver);
 
-        return $notAWinner;
+        return !$refactoredGame->hasEnded();
 
     }
 }
