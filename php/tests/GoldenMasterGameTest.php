@@ -97,11 +97,7 @@ class GoldenMasterGameTest extends TestCase
 
     private function playRefactoredGame(array $players, array $rolledDices, array $answers): bool
     {
-        $refactoredGame = new RefactoredGame();
-
-        foreach ($players as $player) {
-            $refactoredGame->addPlayer($player);
-        }
+        $refactoredGame = new RefactoredGame($players);
 
         $i = 0;
         do {

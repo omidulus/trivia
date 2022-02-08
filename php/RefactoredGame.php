@@ -37,9 +37,11 @@ class RefactoredGame
     private $currentPlayer = -1;
     private $isGettingOutOfPenaltyBox;
 
-    function __construct()
+    function __construct(array $players)
     {
-        $this->players = [];
+        foreach ($players as $player) {
+            $this->addPlayer($player);
+        }
 
         $this->createNewQuestionDecks();
     }
@@ -79,7 +81,7 @@ class RefactoredGame
         return 'Pop Question ' . $index;
     }
 
-    public function addPlayer($playerName): void
+    private function addPlayer($playerName): void
     {
         $this->players[] = new RefactoredPlayer($playerName);
 
