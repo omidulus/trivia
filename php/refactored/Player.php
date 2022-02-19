@@ -2,7 +2,7 @@
 
 namespace Refactored;
 
-class RefactoredPlayer
+class Player
 {
     private $name;
     private $boardPlace;
@@ -51,8 +51,8 @@ class RefactoredPlayer
     public function moveOnBoard(int $roll)
     {
         $this->boardPlace += $roll;
-        if ($this->boardPlace >= count(RefactoredGame::BOARD_PLACES)) {
-            $this->boardPlace -= count(RefactoredGame::BOARD_PLACES);
+        if ($this->boardPlace >= count(Game::BOARD_PLACES)) {
+            $this->boardPlace -= count(Game::BOARD_PLACES);
         }
     }
 

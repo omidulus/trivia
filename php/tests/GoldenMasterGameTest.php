@@ -1,10 +1,10 @@
 <?php
 include __DIR__ . '/../Game.php';
-include __DIR__ . '/../RefactoredGame.php';
+include __DIR__ . '/../refactored/Game.php';
 
 
 use PHPUnit\Framework\TestCase;
-use Refactored\RefactoredGame;
+use Refactored\Game;
 
 class GoldenMasterGameTest extends TestCase
 {
@@ -74,7 +74,7 @@ class GoldenMasterGameTest extends TestCase
 
     private function playLegacyGame(array $players, array $rolledDices, array $answers): bool
     {
-        $legacyGame = new Game();
+        $legacyGame = new \Game();
 
         foreach ($players as $player) {
             $legacyGame->add($player);
@@ -97,7 +97,7 @@ class GoldenMasterGameTest extends TestCase
 
     private function playRefactoredGame(array $players, array $rolledDices, array $answers): bool
     {
-        $refactoredGame = new RefactoredGame($players);
+        $refactoredGame = new Game($players);
 
         $i = 0;
         do {

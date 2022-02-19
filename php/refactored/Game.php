@@ -4,9 +4,9 @@ namespace Refactored;
 use Exception;
 use function echoln;
 
-require_once __DIR__ . '/RefactoredPlayer.php';
+require_once __DIR__ . '/Player.php';
 
-class RefactoredGame
+class Game
 {
     const CATEGORY_POP = 'Pop';
     const CATEGORY_SCIENCE = 'Science';
@@ -84,7 +84,7 @@ class RefactoredGame
 
     private function addPlayer($playerName): void
     {
-        $this->players[] = new RefactoredPlayer($playerName);
+        $this->players[] = new Player($playerName);
 
         echoln($playerName . " was added");
         echoln("They are player number " . count($this->players));
@@ -105,7 +105,7 @@ class RefactoredGame
         $this->currentPlayerMustAnswer = false;
     }
 
-    private function currentPlayer(): RefactoredPlayer
+    private function currentPlayer(): Player
     {
         return $this->players[$this->currentPlayer];
     }
