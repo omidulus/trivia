@@ -1,10 +1,10 @@
 <?php
 namespace Refactored;
 
-use Exception;
 use function echoln;
 
 require_once __DIR__ . '/Player.php';
+require_once __DIR__ . '/QuestionDeck.php';
 
 class Game
 {
@@ -29,14 +29,10 @@ class Game
     const DECK_SIZE = 50;
 
     private $players;
-
-    private $popQuestions;
-    private $scienceQuestions;
-    private $sportsQuestions;
-    private $rockQuestions;
-
     private $currentPlayer = -1;
     private $currentPlayerMustAnswer = false;
+    /** @var QuestionDeck[] */
+    private $questionDecks = [];
 
     function __construct(array $players)
     {
@@ -44,42 +40,7 @@ class Game
             $this->addPlayer($player);
         }
 
-        $this->createNewQuestionDecks();
-    }
-
-    private function createNewQuestionDecks(): void
-    {
-        $this->popQuestions = [];
-        $this->scienceQuestions = [];
-        $this->sportsQuestions = [];
-        $this->rockQuestions = [];
-
-        for ($i = 0; $i < self::DECK_SIZE; $i++) {
-            $this->popQuestions[] = self::createPopQuestion($i);
-            $this->scienceQuestions[] = self::createScienceQuestion($i);
-            $this->sportsQuestions[] = self::createSportsQuestion($i);
-            $this->rockQuestions[] = self::createRockQuestion($i);
-        }
-    }
-
-    private static function createRockQuestion($index): string
-    {
-        return 'Rock Question ' . $index;
-    }
-
-    private static function createSportsQuestion(int $index): string
-    {
-        return 'Sports Question ' . $index;
-    }
-
-    private static function createScienceQuestion(int $index): string
-    {
-        return 'Science Question ' . $index;
-    }
-
-    private static function createPopQuestion(int $index): string
-    {
-        return 'Pop Question ' . $index;
+        $this->generateQuestionDecks();
     }
 
     private function addPlayer($playerName): void
@@ -88,6 +49,14 @@ class Game
 
         echoln($playerName . " was added");
         echoln("They are player number " . count($this->players));
+    }
+
+    private function generateQuestionDecks(): void
+    {
+        $this->questionDecks[self::CATEGORY_POP] = QuestionDeck::generateDeck(self::CATEGORY_POP, self::DECK_SIZE);
+        $this->questionDecks[self::CATEGORY_ROCK] = QuestionDeck::generateDeck(self::CATEGORY_ROCK, self::DECK_SIZE);
+        $this->questionDecks[self::CATEGORY_SCIENCE] = QuestionDeck::generateDeck(self::CATEGORY_SCIENCE, self::DECK_SIZE);
+        $this->questionDecks[self::CATEGORY_SPORTS] = QuestionDeck::generateDeck(self::CATEGORY_SPORTS, self::DECK_SIZE);
     }
 
     private function activateNextPlayer(): void
@@ -128,18 +97,7 @@ class Game
 
     private function askNextQuestion()
     {
-        if ($this->currentPlayerCategory() == self::CATEGORY_POP) {
-            echoln(array_shift($this->popQuestions));
-        }
-        if ($this->currentPlayerCategory() == self::CATEGORY_SCIENCE) {
-            echoln(array_shift($this->scienceQuestions));
-        }
-        if ($this->currentPlayerCategory() == self::CATEGORY_SPORTS) {
-            echoln(array_shift($this->sportsQuestions));
-        }
-        if ($this->currentPlayerCategory() == self::CATEGORY_ROCK) {
-            echoln(array_shift($this->rockQuestions));
-        }
+        echoln($this->questionDecks[$this->currentPlayerCategory()]->readNextCard());
 
         $this->currentPlayerMustAnswer = true;
     }
