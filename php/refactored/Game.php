@@ -47,8 +47,7 @@ class Game
     {
         $this->players[] = new Player($playerName);
 
-        echoln($playerName . " was added");
-        echoln("They are player number " . count($this->players));
+        $this->displayPlayerAdded($playerName, count($this->players));
     }
 
     private function generateQuestionDecks(): void
@@ -70,7 +69,7 @@ class Game
             $this->currentPlayer = 0;
         }
 
-        echoln($this->currentPlayer()->name() . " is the current player");
+        $this->displayCurrentPlayerChanged($this->currentPlayer()->name());
         $this->currentPlayerMustAnswer = false;
     }
 
@@ -86,18 +85,35 @@ class Game
         }
 
         $this->activateNextPlayer();
-        echoln("They have rolled a " . $roll);
+        $this->displayRolledDie($roll);
 
         $this->playGamePhaseForGettingOutOfThePenaltyBox($roll);
         if (!$this->currentPlayer()->isInPenaltyBox()) {
-            $this->movePlayerOnBoard($roll);
+            $this->currentPlayer()->moveOnBoard($roll);
+
+            $this->displayPlayerNewStatus($this->currentPlayer());
+            $this->displayPlayerCategory($this->currentPlayerCategory());
             $this->askNextQuestion();
+        }
+    }
+
+    private function playGamePhaseForGettingOutOfThePenaltyBox(int $roll): void
+    {
+        $oddNumberWasRolled = $roll % 2 != 0;
+
+        if ($this->currentPlayer()->isInPenaltyBox() && $oddNumberWasRolled) {
+            $this->displayPlayerLeftThePenaltyBox($this->currentPlayer()->name());
+            $this->currentPlayer()->exitPenaltyBox();
+        }
+
+        if ($this->currentPlayer()->isInPenaltyBox() && !$oddNumberWasRolled) {
+            $this->displayPlayerCouldNotLeavePenaltyBox($this->currentPlayer()->name());
         }
     }
 
     private function askNextQuestion()
     {
-        echoln($this->questionDecks[$this->currentPlayerCategory()]->readNextCard());
+        $this->displayQuestion($this->questionDecks[$this->currentPlayerCategory()]->readNextCard());
 
         $this->currentPlayerMustAnswer = true;
     }
@@ -112,30 +128,6 @@ class Game
         return $this->currentPlayer()->coins() >= 6;
     }
 
-    private function movePlayerOnBoard(int $roll): void
-    {
-        $this->currentPlayer()->moveOnBoard($roll);
-
-        echoln(
-            sprintf("%s's new location is %d", $this->currentPlayer()->name(), $this->currentPlayer()->boardPlace())
-        );
-        echoln("The category is " . $this->currentPlayerCategory());
-    }
-
-    private function playGamePhaseForGettingOutOfThePenaltyBox(int $roll): void
-    {
-        $oddNumberWasRolled = $roll % 2 != 0;
-
-        if ($this->currentPlayer()->isInPenaltyBox() && $oddNumberWasRolled) {
-            echoln($this->currentPlayer()->name() . " is getting out of the penalty box");
-            $this->currentPlayer()->exitPenaltyBox();
-        }
-
-        if ($this->currentPlayer()->isInPenaltyBox() && !$oddNumberWasRolled) {
-            echoln($this->currentPlayer()->name() . " is not getting out of the penalty box");
-        }
-    }
-
     public function currentPlayerMustAnswer(): bool
     {
         return $this->currentPlayerMustAnswer;
@@ -143,22 +135,75 @@ class Game
 
     public function currentPlayerAnswersCorrectly(): void
     {
-        echoln("Answer was correct!!!!");
         $this->currentPlayer()->addOneCoin();
-        echoln(
-            $this->currentPlayer()->name()
-            . " now has "
-            . $this->currentPlayer()->coins()
-            . " Gold Coins."
-        );
+        $this->displayPlayerAnswersCorrectly($this->currentPlayer()->name(), $this->currentPlayer()->coins());
         $this->currentPlayerMustAnswer = false;
     }
 
     public function currentPlayerAnswersWrongly(): void
     {
-        echoln("Question was incorrectly answered");
-        echoln($this->currentPlayer()->name() . " was sent to the penalty box");
+        $this->displayPlayerAnsweredWrongly($this->currentPlayer()->name());
         $this->currentPlayer()->moveInPenaltyBox();
         $this->currentPlayerMustAnswer = false;
+    }
+
+    private function displayPlayerAdded(string $playerName, int $playerNumber): void
+    {
+        echoln($playerName . " was added");
+        echoln("They are player number " . $playerNumber);
+    }
+
+    private function displayCurrentPlayerChanged(string $playerName): void
+    {
+        echoln($playerName . " is the current player");
+    }
+
+    private function displayRolledDie(int $roll): void
+    {
+        echoln("They have rolled a " . $roll);
+    }
+
+    private function displayQuestion(string $question): void
+    {
+        echoln($question);
+    }
+
+    private function displayPlayerNewStatus(Player $currentPlayer): void
+    {
+        echoln(
+            sprintf("%s's new location is %d", $currentPlayer->name(), $currentPlayer->boardPlace())
+        );
+    }
+
+    private function displayPlayerCategory(string $currentPlayerCategory): void
+    {
+        echoln("The category is " . $currentPlayerCategory);
+    }
+
+    private function displayPlayerLeftThePenaltyBox(string $playerName): void
+    {
+        echoln($playerName . " is getting out of the penalty box");
+    }
+
+    private function displayPlayerCouldNotLeavePenaltyBox(string $playerName): void
+    {
+        echoln($playerName . " is not getting out of the penalty box");
+    }
+
+    private function displayPlayerAnswersCorrectly(string $playerName, int $coinsAfterAnswer): void
+    {
+        echoln("Answer was correct!!!!");
+        echoln(
+            $playerName
+            . " now has "
+            . $coinsAfterAnswer
+            . " Gold Coins."
+        );
+    }
+
+    private function displayPlayerAnsweredWrongly(string $playerName): void
+    {
+        echoln("Question was incorrectly answered");
+        echoln($playerName . " was sent to the penalty box");
     }
 }
