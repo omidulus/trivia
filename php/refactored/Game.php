@@ -3,7 +3,7 @@ namespace Refactored;
 
 require_once __DIR__ . '/Player.php';
 require_once __DIR__ . '/QuestionDeck.php';
-require_once __DIR__ . '/StdoutDisplayer.php';
+require_once __DIR__ . '/Displayer.php';
 
 class Game
 {
@@ -32,12 +32,11 @@ class Game
     private $currentPlayerMustAnswer = false;
     /** @var QuestionDeck[] */
     private $questionDecks = [];
-    /** @var StdoutDisplayer */
-    private $stdoutDisplayer;
+    private $displayer;
 
-    function __construct(array $players)
+    function __construct(array $players, Displayer $displayer)
     {
-        $this->stdoutDisplayer = new StdoutDisplayer();
+        $this->displayer = $displayer;
 
         foreach ($players as $player) {
             $this->addPlayer($player);
@@ -50,7 +49,7 @@ class Game
     {
         $this->players[] = new Player($playerName);
 
-        $this->stdoutDisplayer->displayPlayerAdded($playerName, count($this->players));
+        $this->displayer->displayPlayerAdded($playerName, count($this->players));
     }
 
     private function generateQuestionDecks(): void
@@ -72,7 +71,7 @@ class Game
             $this->currentPlayer = 0;
         }
 
-        $this->stdoutDisplayer->displayCurrentPlayerChanged($this->currentPlayer()->name());
+        $this->displayer->displayCurrentPlayerChanged($this->currentPlayer()->name());
         $this->currentPlayerMustAnswer = false;
     }
 
@@ -88,14 +87,14 @@ class Game
         }
 
         $this->activateNextPlayer();
-        $this->stdoutDisplayer->displayRolledDie($roll);
+        $this->displayer->displayRolledDie($roll);
 
         $this->playGamePhaseForGettingOutOfThePenaltyBox($roll);
         if (!$this->currentPlayer()->isInPenaltyBox()) {
             $this->currentPlayer()->moveOnBoard($roll);
 
-            $this->stdoutDisplayer->displayPlayerNewStatus($this->currentPlayer());
-            $this->stdoutDisplayer->displayPlayerCategory($this->currentPlayerCategory());
+            $this->displayer->displayPlayerNewStatus($this->currentPlayer());
+            $this->displayer->displayPlayerCategory($this->currentPlayerCategory());
             $this->askNextQuestion();
         }
     }
@@ -105,18 +104,18 @@ class Game
         $oddNumberWasRolled = $roll % 2 != 0;
 
         if ($this->currentPlayer()->isInPenaltyBox() && $oddNumberWasRolled) {
-            $this->stdoutDisplayer->displayPlayerLeftThePenaltyBox($this->currentPlayer()->name());
+            $this->displayer->displayPlayerLeftThePenaltyBox($this->currentPlayer()->name());
             $this->currentPlayer()->exitPenaltyBox();
         }
 
         if ($this->currentPlayer()->isInPenaltyBox() && !$oddNumberWasRolled) {
-            $this->stdoutDisplayer->displayPlayerCouldNotLeavePenaltyBox($this->currentPlayer()->name());
+            $this->displayer->displayPlayerCouldNotLeavePenaltyBox($this->currentPlayer()->name());
         }
     }
 
     private function askNextQuestion()
     {
-        $this->stdoutDisplayer->displayQuestion($this->questionDecks[$this->currentPlayerCategory()]->readNextCard());
+        $this->displayer->displayQuestion($this->questionDecks[$this->currentPlayerCategory()]->readNextCard());
 
         $this->currentPlayerMustAnswer = true;
     }
@@ -139,13 +138,13 @@ class Game
     public function currentPlayerAnswersCorrectly(): void
     {
         $this->currentPlayer()->addOneCoin();
-        $this->stdoutDisplayer->displayPlayerAnswersCorrectly($this->currentPlayer()->name(), $this->currentPlayer()->coins());
+        $this->displayer->displayPlayerAnswersCorrectly($this->currentPlayer()->name(), $this->currentPlayer()->coins());
         $this->currentPlayerMustAnswer = false;
     }
 
     public function currentPlayerAnswersWrongly(): void
     {
-        $this->stdoutDisplayer->displayPlayerAnsweredWrongly($this->currentPlayer()->name());
+        $this->displayer->displayPlayerAnsweredWrongly($this->currentPlayer()->name());
         $this->currentPlayer()->moveInPenaltyBox();
         $this->currentPlayerMustAnswer = false;
     }

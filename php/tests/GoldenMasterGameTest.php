@@ -1,10 +1,11 @@
 <?php
-include __DIR__ . '/../Game.php';
-include __DIR__ . '/../refactored/Game.php';
-
+require_once __DIR__ . '/../Game.php';
+require_once __DIR__ . '/../refactored/Game.php';
+require_once __DIR__ . '/../refactored/StdoutDisplayer.php';
 
 use PHPUnit\Framework\TestCase;
 use Refactored\Game;
+use Refactored\StdoutDisplayer;
 
 class GoldenMasterGameTest extends TestCase
 {
@@ -97,7 +98,7 @@ class GoldenMasterGameTest extends TestCase
 
     private function playRefactoredGame(array $players, array $rolledDices, array $answers): bool
     {
-        $refactoredGame = new Game($players);
+        $refactoredGame = new Game($players, new StdoutDisplayer());
 
         $i = 0;
         do {
